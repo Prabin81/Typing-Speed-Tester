@@ -1,11 +1,9 @@
-// Configuration object (kept for completeness if SDK logic is desired later)
 const defaultConfig = {
     app_title: "AI Typing Speed Tester",
     start_button_text: "Start Test",
     reset_button_text: "Reset"
 };
 
-// AI-powered paragraph generator (mock implementation)
 const aiParagraphs = {
     tech: [
         "Artificial intelligence is revolutionizing the way we interact with technology. Machine learning algorithms can now process vast amounts of data in seconds, enabling computers to make decisions that were once exclusively human. From autonomous vehicles navigating busy streets to smart assistants understanding natural language, AI is becoming an integral part of our daily lives. The future promises even more exciting developments as quantum computing and neural networks continue to evolve.",
@@ -39,7 +37,6 @@ const aiParagraphs = {
     ]
 };
 
-// Game state
 let gameState = {
     isActive: false,
     startTime: null,
@@ -52,7 +49,6 @@ let gameState = {
     timer: null
 };
 
-// DOM elements
 const elements = {
     themeSelect: document.getElementById('themeSelect'),
     startBtn: document.getElementById('startBtn'),
@@ -72,19 +68,11 @@ const elements = {
     appTitle: document.getElementById('appTitle'),
 };
 
-/**
- * Generates a random paragraph based on the selected theme.
- * @param {string} theme - The theme key (e.g., 'tech', 'motivational').
- * @returns {string} - A random paragraph string.
- */
 function generateParagraph(theme) {
     const paragraphs = aiParagraphs[theme] || aiParagraphs.tech;
     return paragraphs[Math.floor(Math.random() * paragraphs.length)];
 }
 
-/**
- * Updates the text display with character highlighting.
- */
 function updateTextDisplay() {
     const text = gameState.currentText;
     const input = gameState.userInput;
@@ -94,7 +82,6 @@ function updateTextDisplay() {
         const char = text[i];
         let className = '';
         
-        // Use a non-breaking space for actual space characters to apply background color
         const displayChar = char === ' ' ? '&nbsp;' : char;
 
         if (i < input.length) {
@@ -111,19 +98,17 @@ function updateTextDisplay() {
     elements.textDisplay.innerHTML = html;
 }
 
-/**
- * Calculates and updates the live statistics (WPM, Accuracy, Errors).
- */
+
 function updateStats() {
     const timeElapsed = gameState.startTime ? (Date.now() - gameState.startTime) / 1000 : 0;
-    // Count words based on spaces in the correct part of the input
+
     const correctInput = gameState.userInput.substring(0, gameState.currentText.length);
     const wordsTyped = correctInput.trim().split(/\s+/).filter(word => word.length > 0).length;
     
-    // WPM calculation: (Words Typed / Minutes Elapsed)
+
     const wpm = timeElapsed > 0 ? Math.round((wordsTyped / timeElapsed) * 60) : 0;
     
-    // Accuracy calculation: (Correct Chars / Total Chars) * 100
+
     const correctCharacters = gameState.totalCharacters - gameState.errors;
     const accuracy = gameState.totalCharacters > 0 ? 
         Math.round((correctCharacters / gameState.totalCharacters) * 100) : 100;
@@ -134,9 +119,7 @@ function updateStats() {
     elements.charactersValue.textContent = gameState.totalCharacters;
 }
 
-/**
- * Starts the typing test.
- */
+
 function startTest() {
     const theme = elements.themeSelect.value;
     gameState.currentText = generateParagraph(theme);
@@ -161,13 +144,11 @@ function startTest() {
     startTimer();
 }
 
-/**
- * Starts the countdown timer.
- */
+
 function startTimer() {
     elements.timer.textContent = `${gameState.timeLeft}s`;
     
-    // Clear any existing timer just in case
+
     if (gameState.timer) clearInterval(gameState.timer);
 
     gameState.timer = setInterval(() => {
@@ -180,9 +161,6 @@ function startTimer() {
     }, 1000);
 }
 
-/**
- * Ends the typing test and displays final results.
- */
 function endTest() {
     gameState.isActive = false;
     clearInterval(gameState.timer);
@@ -192,11 +170,9 @@ function endTest() {
     elements.themeSelect.disabled = false;
     elements.timer.classList.remove('show');
 
-    // Calculate final statistics
-    const totalTimeElapsed = 60 - gameState.timeLeft; // Time elapsed in seconds (max 60)
+    const totalTimeElapsed = 60 - gameState.timeLeft; 
     const timeUsed = Math.round(totalTimeElapsed > 0 ? totalTimeElapsed : 1);
     
-    // Only count words that are fully and correctly typed up to the final index
     const completedText = gameState.userInput.substring(0, gameState.currentText.length);
     const finalWords = completedText.trim().split(/\s+/).filter(word => word.length > 0).length;
 
@@ -206,7 +182,6 @@ function endTest() {
     const finalAccuracy = gameState.totalCharacters > 0 ? 
         Math.round((correctCharacters / gameState.totalCharacters) * 100) : 100;
 
-    // Display results
     elements.finalWpm.textContent = finalWpm;
     elements.finalAccuracy.textContent = `${finalAccuracy}%`;
     elements.finalErrors.textContent = gameState.errors;
@@ -214,9 +189,6 @@ function endTest() {
     elements.results.classList.add('show');
 }
 
-/**
- * Resets the application state and UI.
- */
 function resetTest() {
     gameState.isActive = false;
     gameState.startTime = null;
@@ -237,17 +209,12 @@ function resetTest() {
     elements.results.classList.remove('show');
     elements.textDisplay.innerHTML = 'Select a theme and click "Start Test" to begin your typing challenge!';
     
-    // Reset live stats display
     elements.wpmValue.textContent = '0';
     elements.accuracyValue.textContent = '100';
     elements.errorsValue.textContent = '0';
     elements.charactersValue.textContent = '0';
 }
 
-/**
- * Handles all typing input events, checks for errors, and updates display/stats.
- * @param {Event} event - The input event.
- */
 function handleTyping(event) {
     if (!gameState.isActive) return;
 
@@ -255,31 +222,26 @@ function handleTyping(event) {
     const previousLength = gameState.userInput.length;
     const textLength = gameState.currentText.length;
     
-    // Ensure input doesn't exceed the length of the paragraph
+
     if (input.length > textLength) {
-        // Prevent typing past the end of the required text
+
         event.target.value = gameState.userInput;
         return;
     }
     
     gameState.userInput = input;
     
-    // Update total characters typed (which is the length of the input)
+
     gameState.totalCharacters = input.length;
 
-    // Error logic: check the last character typed
+
     if (input.length > previousLength) {
         const charIndex = input.length - 1;
         if (charIndex < textLength && input[charIndex] !== gameState.currentText[charIndex]) {
             gameState.errors++;
         }
     } 
-    // Handle backspace/deletion: You may need more complex logic here 
-    // to strictly track errors if the user deletes a *previously made error*,
-    // but for simplicity, the current logic tracks total accumulated errors.
-    // For a strict WPM test, often errors are only counted on typing, not on correcting.
-    
-    // Check if test is complete (user has typed the entire paragraph)
+
     if (input.length === textLength) {
         endTest();
         return;
@@ -289,20 +251,17 @@ function handleTyping(event) {
     updateStats();
 }
 
-// Event listeners
+
 elements.startBtn.addEventListener('click', startTest);
 elements.resetBtn.addEventListener('click', resetTest);
 elements.typingInput.addEventListener('input', handleTyping);
 
-// Prevent Enter key from causing unintended behavior (like a newline)
+
 elements.typingInput.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
         event.preventDefault();
     }
 });
 
-// Initial application setup
+
 window.onload = resetTest;
-// Note: I've removed the specific 'elementSdk' logic as it seems proprietary
-// to your environment and unnecessary for the core functionality.
-// If you need it, you can re-integrate it here.

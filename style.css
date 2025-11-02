@@ -181,7 +181,6 @@ html {
     width: 100%; 
 }
 
-/* Typing Highlighter Styles */
 .char-correct {
     background-color: #c6f6d5;
     color: #22543d;
@@ -201,8 +200,6 @@ html {
 .char-pending {
     color: #a0aec0;
 }
-/* End Typing Highlighter Styles */
-
 
 @keyframes blink {
     0%, 50% { opacity: 1; }
